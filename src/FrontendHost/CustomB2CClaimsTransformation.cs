@@ -8,10 +8,11 @@ namespace poc_bff
         public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
             ClaimsIdentity claimsIdentity = new ClaimsIdentity();
-            var bffLogoutForB2CClaimType = "bff:logout_url";
-            if (!principal.HasClaim(claim => claim.Type == bffLogoutForB2CClaimType))
+            var myCustomClaim = "mycustom_claim";
+            if (!principal.HasClaim(claim => claim.Type == myCustomClaim))
             {
-                claimsIdentity.AddClaim(new Claim(bffLogoutForB2CClaimType, $"bff/logout?sid={0}"));
+                string myCustomValue= $"hello world";
+                claimsIdentity.AddClaim(new Claim(myCustomClaim, myCustomValue));
             }
 
             principal.AddIdentity(claimsIdentity);

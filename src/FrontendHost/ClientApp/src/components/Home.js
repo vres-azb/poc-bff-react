@@ -9,8 +9,8 @@ export class Home extends Component {
             todos: [],
             loading: true,
             error: null,
-            todoName: "Do something",
-            todoDate: "2021-03-01",
+            todoName: "My Task",
+            todoDate: "2024-01-01",
         };
 
         this.createTodo = this.createTodo.bind(this);
@@ -82,31 +82,34 @@ export class Home extends Component {
                 <div className="banner">
                     <h1>TODOs</h1>
                 </div>
-
                 <div className="row">
                     <div className="col">
                         <h3>Add New</h3>
                     </div>
+                    <p>&nbsp;</p>
                     <div className="form-inline">
-                        <label htmlFor="date">Todo Date</label>
+                        <label htmlFor="date">Todo Date:</label>
                         <input
                             className="form-control"
                             type="date"
                             value={this.state.todoDate}
                             onChange={(e) => this.setState({ todoDate: e.target.value })}
                         />
-                        <label htmlFor="name">Todo Name</label>
+                        <p>&nbsp;</p>
+                        <label htmlFor="name">Todo Name:</label>
                         <input
                             className="form-control"
                             value={this.state.todoName}
                             onChange={(e) => this.setState({ todoName: e.target.value })}
                         />
+                        <p>&nbsp;</p>
                         <button
                             className="form-control btn-success"
                             onClick={this.createTodo}
                         >
                             Create
                         </button>
+                        <p>&nbsp;</p>
                     </div>
                 </div>
                 {this.state.error !== null && (
