@@ -1,4 +1,5 @@
 using Duende.Bff.Yarp;
+using poc_bff;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +76,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseBff();
 app.UseAuthorization();
-app.MapBffManagementEndpoints();
+//app.MapBffManagementEndpoints();
+app.MapCustomBffManagementEndpoints();
 
 app.MapControllers()
     .RequireAuthorization()
