@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace poc_bff.Controllers;
 
@@ -6,6 +8,7 @@ namespace poc_bff.Controllers;
 public class ToDoController : ControllerBase
 {
     private readonly ILogger<ToDoController> _logger;
+    //private readonly ITokenAcquisition _tokenAcquisition;
 
     private static readonly List<ToDo> __data = new List<ToDo>()
         {
@@ -20,7 +23,7 @@ public class ToDoController : ControllerBase
     }
 
     [HttpGet("todos")]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
         _logger.LogInformation("GetAll");
 
