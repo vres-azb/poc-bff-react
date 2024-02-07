@@ -89,7 +89,7 @@ namespace BackendApiHost
             return _nextId++;
         }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
         public DateTimeOffset Date { get; set; }
         public string Name { get; set; }
         public string User { get; set; }

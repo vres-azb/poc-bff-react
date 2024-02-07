@@ -45,7 +45,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddOpenIdConnect("oidc", async options =>
 {
-    builder.Configuration.Bind("App",options);
+    builder.Configuration.Bind("Auth:AzB2C", options);
 
     options.ResponseType = "code";
     options.ResponseMode = "query";
@@ -58,6 +58,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("openid");
     options.Scope.Add("profile");
 
+    options.RequireHttpsMetadata = false;
     // Az B2C jwt-test-app
     options.Scope.Add(options.ClientId);
 
@@ -84,9 +85,9 @@ app.MapControllers()
     .AsBffApiEndpoint();
 
 // TODO: validate local/yarp api usage
-// app.MapRemoteBffApiEndpoint("/todos", "https://localhost:5020/todos")
-//     .RequireAccessToken(Duende.Bff.TokenType.User);
+app.MapRemoteBffApiEndpoint("/todos", "https://localhost:5020/orders")
+    .RequireAccessToken(Duende.Bff.TokenType.User);
 
-app.MapFallbackToFile("index.html"); ;
+app.MapFallbackToFile("index.html");
 
 app.Run();

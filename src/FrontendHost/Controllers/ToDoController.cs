@@ -20,11 +20,13 @@ public class ToDoController : ControllerBase
     }
 
     [HttpGet("todos")]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
         _logger.LogInformation("GetAll");
-
-        return Ok(__data.AsEnumerable());
+        HttpClient client = new HttpClient();
+        client.BaseAddress = new Uri("https://localhost:5020/");
+        var todos = await client.GetFromJsonAsync<List<ToDo>>("orders");
+        return Ok(todos.AsEnumerable());
     }
 
     [HttpGet("todos/{id}")]
