@@ -1,8 +1,11 @@
+using System.Diagnostics;
+using Duende.Bff;
 using Microsoft.AspNetCore.Mvc;
 
 namespace poc_bff.Controllers;
 
 //[ApiController]
+//[BffApi]
 public class ToDoController : ControllerBase
 {
     private readonly ILogger<ToDoController> _logger;

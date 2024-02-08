@@ -23,12 +23,14 @@ export class Home extends Component {
 
     async populateTodos() {
         const response = await fetch("todos", {
+        //const response = await fetch("orders", {
             headers: {
                 "X-CSRF": 1,
             },
         });
         if (response.ok) {
             const data = await response.json();
+            console.log(data);
             this.setState({ todos: data, loading: false, error: null });
         } else if (response.status !== 401) {
             this.setState({ error: response.status });

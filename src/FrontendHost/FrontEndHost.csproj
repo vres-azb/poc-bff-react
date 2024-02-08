@@ -16,7 +16,7 @@
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost' " />
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.26" />
     <PackageReference Include="Duende.BFF" Version="1.1.0-preview.2" />
     <PackageReference Include="Duende.BFF.Yarp" Version="1.1.0-preview.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.26" />
