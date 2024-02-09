@@ -1,4 +1,6 @@
 using Duende.Bff.Yarp;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using poc_bff;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,13 +57,12 @@ builder.Services
 })
 .AddOpenIdConnect("oidc", options =>
 {
-    builder.Configuration.Bind("Auth:AzB2C", options);
+    builder.Configuration.Bind("Auth:AzureAdB2C", options);
     options.SignInScheme = "Cookies";
 
-    options.ResponseType = "code";
-    options.ResponseMode = "query";
+    options.ResponseType = OpenIdConnectResponseType.Code;
+    options.ResponseMode = OpenIdConnectResponseMode.Query;
 
-    
     options.MapInboundClaims = false;
     options.SaveTokens = true;
 
@@ -69,6 +70,7 @@ builder.Services
     options.Scope.Add("openid");
     options.Scope.Add("profile");
     //options.Scope.Add("offline_access");
+    options.Scope.Add("orders.read");
 
     options.GetClaimsFromUserInfoEndpoint = true;
 
@@ -99,8 +101,8 @@ app.MapControllers()
     .AsBffApiEndpoint();
 
 // TODO: validate local/yarp api usage
-//app.MapRemoteBffApiEndpoint("/todos", "https://localhost:5020/orders")
-//    .RequireAccessToken(Duende.Bff.TokenType.User);
+app.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
+    .RequireAccessToken(Duende.Bff.TokenType.User);
 
 app.MapFallbackToFile("index.html");
 

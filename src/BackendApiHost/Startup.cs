@@ -25,35 +25,51 @@ namespace BackendApiHost
 
             services.Configure<DesktopEvalDBSettings>(_config.GetSection("DesktopEvalDBSettings"));
 
-            //services.AddAuthentication("token")
-            //   .AddJwtBearer("token", options =>
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //   .AddJwtBearer(options =>
             //   {
-            //       options.Authority = "https://demo.duendesoftware.com";
-            //       options.Audience = "api";
+            //       //options.Authority = "https://demo.duendesoftware.com";
+            //       //options.Audience = "api";
 
             //       options.MapInboundClaims = false;
+
             //   });
 
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("ApiCaller", policy =>
-            //    {
-            //        policy.RequireClaim("scope", "api");
-            //    });
-
-            //    options.AddPolicy("RequireInteractiveUser", policy =>
-            //    {
-            //        policy.RequireClaim("sub");
-            //    });
-            //});
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(_ =>
-             {
-             }, options =>
+            .AddMicrosoftIdentityWebApi(
+                options =>
+                {
+                    _config.Bind("Auth:AzureAdB2C", options);
+                    options.Events ??= new JwtBearerEvents();
+                    options.MapInboundClaims = false;
+
+                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                    {
+                        ValidateAudience = false,
+                        //ValidTypes = new[] {"at+jwt"},
+                        NameClaimType = "name",
+                        RoleClaimType = "role",
+                    };
+
+                }, options =>
+                {
+                    _config.Bind("Auth:AzureAdB2C", options);
+                    //options.SignInScheme = "Cookies";
+                });
+
+            services.AddAuthorization(options =>
             {
-              _config.Bind("Auth:AzB2C", options);
-             });
+                options.AddPolicy("ApiCaller", policy =>
+                {
+                    policy.RequireClaim("aud");
+                    //policy.RequireClaim("scope", "api");
+                });
+
+                options.AddPolicy("RequireInteractiveUser", policy =>
+                {
+                    policy.RequireClaim("sub");
+                });
+            });
 
         }
 
@@ -61,14 +77,14 @@ namespace BackendApiHost
         {
             app.UseRouting();
 
-
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                // .RequireAuthorization("ApiCaller");
+                endpoints.MapControllers()
+                 .RequireAuthorization("ApiCaller")
+                 ;
             });
         }
     }

@@ -1,27 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataAccessLib.Persistence.Context;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System;
 using System.Linq;
-using DataAccessLib.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace BackendApiHost
 {
-    //[Authorize]
+    [Authorize("RequireInteractiveUser")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
         private readonly ILogger<OrdersController> _logger;
         private readonly DesktopEvalDBContext _dbContext;
-        private static readonly List<ToDo> __data = new List<ToDo>()
-        {
-            new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow, Name = "Demo ToDo API", User = "bob" },
-            new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow.AddHours(1), Name = "My Task # 1", User = "bob" },
-            new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow.AddHours(4), Name = "Another Task", User = "alice" }
-        };
 
         public OrdersController(ILogger<OrdersController> logger, DesktopEvalDBContext dbContext)
         {
@@ -42,10 +35,14 @@ namespace BackendApiHost
             //);
             //Debug.WriteLine($"access token-{accessToken}");
 
+            var usr = this.HttpContext.Request.Headers;
 
             var todos = new List<ToDo>();
-            //_dbContext.Orders.Include(a => a.PreOrder).Take(10).ToList().ForEach(a => todos.Add(new ToDo()
-            //{ Id = a.OrderId, Name = a.PreOrder.InputAddress, User = a.UserId, Date = a.CreateDateTime }));
+            _dbContext.Orders
+                .Include(a => a.PreOrder).Take(10).ToList()
+                .ForEach(a => todos.Add(new ToDo()
+                { Id = a.OrderId, Name = a.PreOrder.InputAddress, User = a.UserId, Date = a.CreateDateTime })
+            );
 
             return Ok(todos.AsEnumerable());
         }
