@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Duende.Bff.Yarp;
+using poc_bff;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-
 builder.Services.AddControllers();
 builder.Services.AddBff(options =>
 {
@@ -16,7 +16,7 @@ builder.Services.AddBff(options =>
     // AZ B2C does not offer a revokation endpoint
     options.RevokeRefreshTokenOnLogout = false;
 
-    // Open this url to confir,
+    // OIDC metadata endpoint
     // https://IAM.b2clogin.com/IAM.onmicrosoft.com/b2c_1a_signup_signin/v2.0/.well-known/openid-configuration
 })
 .AddServerSideSessions()
@@ -70,7 +70,6 @@ builder.Services
     })
     ;
 
-
 var app = builder.Build();
 
 app.UseStaticFiles();
@@ -78,7 +77,12 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseBff();
 app.UseAuthorization();
-app.MapBffManagementEndpoints();
+//app.MapBffManagementEndpoints();
+app.MapCustomBffManagementEndpoints();
+
+app.MapControllers()
+    .RequireAuthorization()
+    .AsBffApiEndpoint();
 
 // TODO: validate local/yarp api usage
 app.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")

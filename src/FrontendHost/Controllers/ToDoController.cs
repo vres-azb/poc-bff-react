@@ -7,7 +7,7 @@ using Microsoft.Identity.Web;
 namespace poc_bff.Controllers;
 
 //[ApiController]
-//[BffApi]
+[BffApi]
 public class ToDoController : ControllerBase
 {
     private readonly ILogger<ToDoController> _logger;
@@ -16,7 +16,7 @@ public class ToDoController : ControllerBase
 
     private static readonly List<ToDo> __data = new List<ToDo>()
         {
-            new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow, Name = "Demo ToDo API", User = "bob" },
+            new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow, Name = "Demo (local) ToDo API", User = "bob" },
             new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow.AddHours(1), Name = "My Task # 1", User = "bob" },
             new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow.AddHours(4), Name = "Another Task", User = "alice" }
         };
@@ -48,7 +48,7 @@ public class ToDoController : ControllerBase
 
         _logger.LogInformation("GetAll");
 
-        // TODO: Remove this later...
+        // TODO: Remove this later, calling an eternal API needs a different approach
         //HttpClient client = new HttpClient();
         //client.BaseAddress = new Uri("https://localhost:5020/");
         //var todos = await client.GetFromJsonAsync<List<ToDo>>("orders");
