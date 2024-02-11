@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Duende.Bff;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Abstractions;
+using Microsoft.Identity.Web;
 
 namespace poc_bff.Controllers;
 
@@ -9,6 +11,8 @@ namespace poc_bff.Controllers;
 public class ToDoController : ControllerBase
 {
     private readonly ILogger<ToDoController> _logger;
+    private readonly ITokenAcquisition tokenAcquisition;
+    //private readonly IAuthorizationHeaderProvider authorizationHeaderProvider;
 
     private static readonly List<ToDo> __data = new List<ToDo>()
         {
@@ -17,19 +21,40 @@ public class ToDoController : ControllerBase
             new ToDo { Id = ToDo.NewId(), Date = DateTimeOffset.UtcNow.AddHours(4), Name = "Another Task", User = "alice" }
         };
 
-    public ToDoController(ILogger<ToDoController> logger)
+    public ToDoController(ILogger<ToDoController> logger
+        //,IAuthorizationHeaderProvider authorizationHeaderProvider
+        //, ITokenAcquisition tokenAcquisition
+        )
     {
         _logger = logger;
+        //this.authorizationHeaderProvider = authorizationHeaderProvider;
+        //this.tokenAcquisition = tokenAcquisition;
     }
 
     [HttpGet("todos")]
     public async Task<IActionResult> GetAll()
     {
+        var http = this.HttpContext.Request;
+        string[] scopes = new string[] { "https://iamvresdnadev001.onmicrosoft.com/poc-bff-api/orders.read" };
+        try
+        {
+            //var t = await this.tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+            //.CreateAuthorizationHeaderForUserAsync(scopes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex.Message);
+        }
+
         _logger.LogInformation("GetAll");
-        HttpClient client = new HttpClient();
-        client.BaseAddress = new Uri("https://localhost:5020/");
-        var todos = await client.GetFromJsonAsync<List<ToDo>>("orders");
-        return Ok(todos.AsEnumerable());
+
+        // TODO: Remove this later...
+        //HttpClient client = new HttpClient();
+        //client.BaseAddress = new Uri("https://localhost:5020/");
+        //var todos = await client.GetFromJsonAsync<List<ToDo>>("orders");
+        //return Ok(todos.AsEnumerable());
+
+        return Ok(__data.AsEnumerable());
     }
 
     [HttpGet("todos/{id}")]

@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using DataAccessLib.Persistence;
 using DataAccessLib.Persistence.Repository;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BackendApiHost
 {
@@ -25,36 +23,30 @@ namespace BackendApiHost
 
             services.Configure<DesktopEvalDBSettings>(_config.GetSection("DesktopEvalDBSettings"));
 
-            //services.AddAuthentication("token")
-            //   .AddJwtBearer("token", options =>
-            //   {
-            //       options.Authority = "https://demo.duendesoftware.com";
-            //       options.Audience = "api";
+            services.AddAuthentication("token")
+               .AddJwtBearer("token", options =>
+               {
+                   _config.Bind("AuthConfig:AzureAdB2C", options);
+                   //options.Audience = "api";
 
-            //       options.MapInboundClaims = false;
-            //   });
+                   options.MapInboundClaims = false;
+                   options.TokenValidationParameters ??= new Microsoft.IdentityModel.Tokens.TokenValidationParameters();
+                   options.TokenValidationParameters.ValidateAudience = false;
+               });
 
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("ApiCaller", policy =>
-            //    {
-            //        policy.RequireClaim("scope", "api");
-            //    });
-
-            //    options.AddPolicy("RequireInteractiveUser", policy =>
-            //    {
-            //        policy.RequireClaim("sub");
-            //    });
-            //});
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApi(_ =>
-             {
-             }, options =>
+            services.AddAuthorization(options =>
             {
-              _config.Bind("Auth:AzB2C", options);
-             });
+                options.AddPolicy("ApiCaller", policy =>
+                {
+                    //policy.RequireClaim("scope", "api");
+                    policy.RequireClaim("sub");
+                });
 
+                options.AddPolicy("RequireInteractiveUser", policy =>
+                {
+                    policy.RequireClaim("sub");
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -67,8 +59,9 @@ namespace BackendApiHost
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                // .RequireAuthorization("ApiCaller");
+                endpoints.MapControllers()
+                 .RequireAuthorization("ApiCaller")
+                 ;
             });
         }
     }
