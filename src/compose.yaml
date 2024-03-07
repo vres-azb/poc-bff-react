@@ -6,7 +6,7 @@ services:
         build:
             context: ./db/
         # image: mcr.microsoft.com/mssql/server
-        container_name: sql_server2022
+        hostname: mssql
         environment:
             - ACCEPT_EULA=Y
             - MSSQL_SA_PASSWORD=P@ssw0rd
@@ -24,7 +24,14 @@ services:
         #     context: ./FrontendHost
         image: bff-test
         ports:
-        - "44447:80"
+            - "44447:443"
+        # - "44447:80"
+        environment:
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=P@ssw0rd
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+        volumes:
+            - ./cert:/https:ro
         networks:
             - net-backend
             - net-frontend
@@ -36,7 +43,14 @@ services:
         #     context: ./FrontendHost
         image: bff-test
         ports:
-        - "44457:80"
+            - "44457:443"
+            # - "44457:80"
+        environment:
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=P@ssw0rd
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+        volumes:
+            - ./cert:/https:ro
         networks:
             - net-backend
             - net-frontend

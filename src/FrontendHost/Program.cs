@@ -13,14 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 // TODO: this is an example of EXTENSIBILITY to add custom claims
 //builder.Services.AddTransient<IClaimsTransformation, CustomB2CClaimsTransformation>();
 
- builder.Services.AddDbContext<CustomDataProtectionKeyContext>(options =>
- {
-     options.UseSqlServer("Server=tcp:sql_server2022,1433;UID=sa;Password=P@ssw0rd;Initial Catalog=master;TrustServerCertificate=true;");
- });
+builder.Services.AddDbContext<CustomDataProtectionKeyContext>(options =>
+{
+    var cnn = builder.Configuration.GetConnectionString("DesktopEvalDBSettings");
+    options.UseSqlServer(cnn);
+});
 
 builder.Services.Configure<CustomDataProtectionKeyContext>(options =>
 {
-    builder.Configuration.Bind("DesktopEvalDBSettings:DefaultConnection", options);
+    options.Connection.ConnectionString = builder.Configuration.GetConnectionString("DesktopEvalDBSettings");
 });
 
 builder.Services.AddDataProtection()
@@ -54,18 +55,18 @@ builder.Services.AddDistributedMemoryCache();
 //});
 
 builder.Services
-    .AddSession(options =>
-    {
-        options.IdleTimeout = TimeSpan.FromSeconds(35);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-    })
-    .AddDistributedSqlServerCache(options =>
-    {
-        options.ConnectionString = "Server=tcp:sql_server2022,1433;UID=sa;Password=P@ssw0rd;Initial Catalog=master;TrustServerCertificate=true;";
-        options.SchemaName = "dist_cache";
-        options.TableName = "AppCache";
-    })
+    //.AddSession(options =>
+    //{
+    //    options.IdleTimeout = TimeSpan.FromSeconds(35);
+    //    options.Cookie.HttpOnly = true;
+    //    options.Cookie.IsEssential = true;
+    //})
+    //.AddDistributedSqlServerCache(options =>
+    //{
+    //    options.ConnectionString = builder.Configuration.GetConnectionString("DesktopEvalDBSettings");
+    //    options.SchemaName = "dist_cache";
+    //    options.TableName = "AppCache";
+    //})
     .AddAuthentication(options =>
     {
         options.DefaultScheme = "Cookies";
@@ -84,6 +85,9 @@ builder.Services
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 
         options.Cookie.HttpOnly = true;
+
+        // Per https://learn.microsoft.com/en-us/aspnet/core/security/authentication/cookie?view=aspnetcore-6.0
+        options.Cookie.IsEssential = true;
 
         //HACK: the configuration above produces a cookie with the following values:
         // Set-Cookie: __Host-bff-poc=a123; path=/; Secure; HttpOnly; SameSite=Lax
