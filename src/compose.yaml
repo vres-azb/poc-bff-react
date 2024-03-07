@@ -1,0 +1,54 @@
+version: "3.7"
+name: "poc-nlb-bff"
+
+services:
+    db:
+        build:
+            context: ./db/
+        # image: mcr.microsoft.com/mssql/server
+        container_name: sql_server2022
+        environment:
+            - ACCEPT_EULA=Y
+            - MSSQL_SA_PASSWORD=P@ssw0rd
+        ports:
+            - "1453:1433"
+        # volumes:
+        #     - ./db/bak/:/var/opt/mssql/backup/
+        networks:
+            - net-backend
+
+    webApp1:
+        depends_on:
+            - db
+        # build:
+        #     context: ./FrontendHost
+        image: bff-test
+        ports:
+        - "44447:80"
+        networks:
+            - net-backend
+            - net-frontend
+
+    webApp2:
+        depends_on:
+            - db
+        # build:
+        #     context: ./FrontendHost
+        image: bff-test
+        ports:
+        - "44457:80"
+        networks:
+            - net-backend
+            - net-frontend
+
+    # nlb:
+    #     -
+#     healthcheck:
+# test: ["CMD", "curl", "-f", "http://localhost:8080/utility/healthcheck"]
+# interval: 30s
+# timeout: 10s
+# retries: 3
+
+networks:
+    net-backend:
+    net-frontend:

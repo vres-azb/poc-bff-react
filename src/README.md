@@ -33,3 +33,9 @@ npx kill-port 44447
 ```sh
 /Applications/Visual\ Studio.app/Contents/MacOS/VisualStudio &
 ```
+
+### Docker images
+
+- https://hub.docker.com/_/microsoft-dotnet-sdk
+- https://hub.docker.com/_/node/
+- https://mcr.microsoft.com/en-us/product/dotnet/sdk/tags

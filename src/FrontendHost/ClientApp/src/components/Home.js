@@ -22,8 +22,8 @@ export class Home extends Component {
     }
 
     async populateTodos() {
-        const response = await fetch("todos", {
-        //const response = await fetch("orders", {
+        //const response = await fetch("todos", {
+        const response = await fetch("orders", {
             headers: {
                 "X-CSRF": 1,
             },
