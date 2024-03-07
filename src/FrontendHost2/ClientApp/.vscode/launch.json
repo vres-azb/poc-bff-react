@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "https://localhost:44447/",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "SWA: Run ClientApp",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:4280",
+      "preLaunchTask": "swa: start ClientApp",
+      "webRoot": "${workspaceFolder}/",
+      "timeout": 30000
+    }
+  ]
+}
