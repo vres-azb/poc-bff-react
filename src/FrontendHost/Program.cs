@@ -7,6 +7,7 @@ using DataAccessLib.Persistence.Repository;
 using DataAccessLib.Persistence.Context;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddBff(options =>
 
     // OIDC metadata endpoint
     // https://IAM.b2clogin.com/IAM.onmicrosoft.com/b2c_1a_signup_signin/v2.0/.well-known/openid-configuration
+    //options.LogoutPath = "/";
 })
 .AddServerSideSessions()
 .AddRemoteApis();
@@ -110,8 +112,17 @@ builder.Services
         //options.Scope.Add ("https://iamvresdnadev001.onmicrosoft.com/poc-bff-api/orders.read");
         options.Scope.Add("offline_access");
 
-
+        var s = options.CallbackPath;
+        var r = options.SignedOutCallbackPath;
         options.GetClaimsFromUserInfoEndpoint = true;
+
+        options.Events ??= new OpenIdConnectEvents();
+
+        options.Events.OnRedirectToIdentityProvider= async (ctx) =>
+        {
+            var s = ctx.Properties;
+            return;
+        };
 
         // Az B2C jwt-test-app
         options.Scope.Add(options.ClientId);
@@ -134,22 +145,28 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseBff();
 app.UseAuthorization();
-//app.MapBffManagementEndpoints();
-app.MapCustomBffManagementEndpoints();
 
-app.MapControllers()
-    .RequireAuthorization()
-    .AsBffApiEndpoint();
+app.UseEndpoints(endpoints => {
+    //app.MapBffManagementEndpoints();
+    endpoints.MapCustomBffManagementEndpoints();
 
-// TODO: validate local/yarp api usage
-app.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
-    .RequireAccessToken(Duende.Bff.TokenType.User);
+    endpoints.MapControllers()
+        .RequireAuthorization()
+        .AsBffApiEndpoint();
 
-app.MapFallbackToFile("index.html");
+    // TODO: validate local/yarp api usage
+    endpoints.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
+        .RequireAccessToken(Duende.Bff.TokenType.User);
+
+    endpoints.MapFallbackToFile("index.html");
+
+});
 
 app.Run();

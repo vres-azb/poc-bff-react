@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "FrontendHost": {
+    "FrontendHost2": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "https://localhost:8241;http://localhost:8268",

@@ -62,6 +62,20 @@ services:
 # interval: 30s
 # timeout: 10s
 # retries: 3
+    nginx:
+        build:
+            context: .
+            dockerfile: ./nlb/Dockerfile
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./nlb:/etc/nginx/conf.d/
+        networks:
+            - net-frontend
+        depends_on:
+            - webApp1
+            - webApp2
 
 networks:
     net-backend:

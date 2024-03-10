@@ -14,7 +14,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost2' " />
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.26" />
     <PackageReference Include="Duende.BFF" Version="1.1.0-preview.2" />
@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="6.0.26" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="6.0.26" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.26" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.26" />
   </ItemGroup>
 
   <ItemGroup>

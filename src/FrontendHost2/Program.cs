@@ -134,22 +134,30 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseBff();
 app.UseAuthorization();
-//app.MapBffManagementEndpoints();
-app.MapCustomBffManagementEndpoints();
 
-app.MapControllers()
-    .RequireAuthorization()
-    .AsBffApiEndpoint();
 
-// TODO: validate local/yarp api usage
-app.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
-    .RequireAccessToken(Duende.Bff.TokenType.User);
+app.UseEndpoints(endpoints => {
+    //app.MapBffManagementEndpoints();
+    endpoints.MapCustomBffManagementEndpoints();
 
-app.MapFallbackToFile("index.html");
+    endpoints.MapControllers()
+        .RequireAuthorization()
+        .AsBffApiEndpoint();
+
+    // TODO: validate local/yarp api usage
+    endpoints.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
+        .RequireAccessToken(Duende.Bff.TokenType.User);
+
+    endpoints.MapFallbackToFile("index.html");
+
+});
+
 
 app.Run();

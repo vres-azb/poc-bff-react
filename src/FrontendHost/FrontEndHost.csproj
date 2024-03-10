@@ -14,7 +14,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost' " />
+ <!-- <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost' " />
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost2' " />
+ -->
+ <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+ <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost' " />
+ <PropertyGroup Condition=" '$(RunConfiguration)' == 'FrontendHost2' " />
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.26" />
     <PackageReference Include="Duende.BFF" Version="1.1.0-preview.2" />
@@ -24,6 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="6.0.26" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="6.0.26" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="6.0.26" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.26" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +64,10 @@
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
     <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+  </Target>
+
+  <Target Name="Output" AfterTargets="Build">
+    <Message Importance="high" Text="============ ASPNETCORE_ENVIRONMENT --&gt; $(ASPNETCORE_ENVIRONMENT)" />
   </Target>
 
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
