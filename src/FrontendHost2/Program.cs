@@ -7,6 +7,7 @@ using DataAccessLib.Persistence.Repository;
 using DataAccessLib.Persistence.Context;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,7 @@ builder.Services.AddBff(options =>
     // OIDC metadata endpoint
     // https://IAM.b2clogin.com/IAM.onmicrosoft.com/b2c_1a_signup_signin/v2.0/.well-known/openid-configuration
 })
-.AddServerSideSessions()
+//.AddServerSideSessions()
 .AddRemoteApis();
 
 builder.Services.AddDistributedMemoryCache();
@@ -55,12 +56,6 @@ builder.Services.AddDistributedMemoryCache();
 //});
 
 builder.Services
-    //.AddSession(options =>
-    //{
-    //    options.IdleTimeout = TimeSpan.FromSeconds(35);
-    //    options.Cookie.HttpOnly = true;
-    //    options.Cookie.IsEssential = true;
-    //})
     //.AddDistributedSqlServerCache(options =>
     //{
     //    options.ConnectionString = builder.Configuration.GetConnectionString("DesktopEvalDBSettings");
@@ -86,9 +81,6 @@ builder.Services
 
         options.Cookie.HttpOnly = true;
 
-        // Per https://learn.microsoft.com/en-us/aspnet/core/security/authentication/cookie?view=aspnetcore-6.0
-        options.Cookie.IsEssential = true;
-
         //HACK: the configuration above produces a cookie with the following values:
         // Set-Cookie: __Host-bff-poc=a123; path=/; Secure; HttpOnly; SameSite=Lax
     })
@@ -110,8 +102,25 @@ builder.Services
         //options.Scope.Add ("https://iamvresdnadev001.onmicrosoft.com/poc-bff-api/orders.read");
         options.Scope.Add("offline_access");
 
-
+        var s = options.CallbackPath;
+        var r = options.SignedOutCallbackPath;
         options.GetClaimsFromUserInfoEndpoint = true;
+
+        options.Events ??= new OpenIdConnectEvents();
+
+        options.Events.OnRedirectToIdentityProvider = async (ctx) =>
+        {
+            var s = ctx;
+            ctx.ProtocolMessage.RedirectUri = "https://localhost:7077/signin-oidc";
+            await Task.CompletedTask;
+        };
+
+        options.Events.OnRedirectToIdentityProviderForSignOut = async (ctx) =>
+        {
+            var s = ctx;
+            ctx.ProtocolMessage.PostLogoutRedirectUri = "https://localhost:7077/signout-callback-oidc";
+            await Task.CompletedTask;
+        };
 
         // Az B2C jwt-test-app
         options.Scope.Add(options.ClientId);
@@ -142,22 +151,17 @@ app.UseAuthentication();
 app.UseBff();
 app.UseAuthorization();
 
+//app.MapBffManagementEndpoints();
+app.MapCustomBffManagementEndpoints();
 
-app.UseEndpoints(endpoints => {
-    //app.MapBffManagementEndpoints();
-    endpoints.MapCustomBffManagementEndpoints();
+app.MapControllers()
+    .RequireAuthorization()
+    .AsBffApiEndpoint();
 
-    endpoints.MapControllers()
-        .RequireAuthorization()
-        .AsBffApiEndpoint();
+// TODO: validate local/yarp api usage
+app.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
+    .RequireAccessToken(Duende.Bff.TokenType.User);
 
-    // TODO: validate local/yarp api usage
-    endpoints.MapRemoteBffApiEndpoint("/orders", "https://localhost:5020/orders")
-        .RequireAccessToken(Duende.Bff.TokenType.User);
-
-    endpoints.MapFallbackToFile("index.html");
-
-});
-
+app.MapFallbackToFile("index.html");
 
 app.Run();

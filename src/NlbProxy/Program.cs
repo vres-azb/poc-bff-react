@@ -5,9 +5,9 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddCors(options =>
 {
+    // HACK: This is only to demonstrate a CORS policy in code
     options.AddPolicy("cors-nlb", policyBuilder => {
-        //policyBuilder.WithOrigins("https://localhost:7080");
-        policyBuilder.AllowAnyOrigin();
+        policyBuilder.WithOrigins("https://localhost:7077");
     });
 });
 
